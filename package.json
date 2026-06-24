@@ -1,0 +1,44 @@
+{
+  "name": "adpanel-core",
+  "version": "0.1.0",
+  "description": "Open-source MCP stdio client for AdPanel — routes tool calls to the AdPanel production gateway.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "adpanel-core": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    ".env.example"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.64"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/adpanel-io/adpanel-core"
+  },
+  "keywords": [
+    "adpanel",
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "video",
+    "brand"
+  ]
+}
