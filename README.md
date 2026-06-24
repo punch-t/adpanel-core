@@ -69,6 +69,12 @@ Claude / MCP client
 
 This repository contains **routing and transport only**. Video synthesis, brand locking, and database schemas live on AdPanel servers.
 
+## Open source vs proprietary
+
+The **AdPanel MCP connector** (this repository) is open source under the Apache License 2.0.
+
+The **AdPanel platform** — API implementation, generation pipelines, billing systems, prompts, workflows, routing logic, model orchestration, user accounts, and backend services — remains proprietary.
+
 ## License
 
-MIT
+Apache License 2.0 — see [LICENSE](LICENSE).
