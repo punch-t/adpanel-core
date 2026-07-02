@@ -115,6 +115,13 @@ const synthesizeBroadcastAssetSchema = {
     .describe('Optional downstream publish target identifiers'),
 }
 
+const getSessionStatusSchema = {
+  sessionId: z
+    .string()
+    .uuid()
+    .describe('Active orchestration or synthesis session identifier'),
+}
+
 async function routeTool<T extends Record<string, unknown>>(
   tool: GatewayToolName,
   args: T
@@ -162,6 +169,14 @@ server.tool(
   synthesizeBroadcastAssetSchema,
   async (args) =>
     jsonToolResult(await routeTool('adpanel_synthesize_broadcast_asset', args))
+)
+
+server.tool(
+  'adpanel_get_session_status',
+  'Retrieve the current status of an orchestration or synthesis session.',
+  getSessionStatusSchema,
+  async (args) =>
+    jsonToolResult(await routeTool('adpanel_get_session_status', args))
 )
 
 async function main(): Promise<void> {

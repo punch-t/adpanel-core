@@ -13,8 +13,10 @@ export type MockExecutionResult = {
   mode: 'mock'
   sessionHash: string
   tool: GatewayToolName
-  status: 'simulated_complete'
+  status: 'simulated_complete' | 'processing' | 'completed' | 'failed'
   message: string
+  progress?: number
+  resultUrl?: string
 }
 
 function writeStatus(lines: string[]): void {
@@ -45,6 +47,12 @@ function mockStepsForTool(tool: GatewayToolName): string[] {
         '- **[3/4]** Simulating synthesis pipeline handshake…',
         '- **[4/4]** Mock broadcast asset synthesis complete.',
       ]
+    case 'adpanel_get_session_status':
+      return [
+        '- **[1/3]** Checking session routing registry…',
+        '- **[2/3]** Retrieving rendering job state…',
+        '- **[3/3]** Mock session status retrieval complete.',
+      ]
     default:
       return ['- **[1/1]** Mock execution complete.']
   }
@@ -68,6 +76,24 @@ export async function executeMockTool<T extends Record<string, unknown>>(
   ])
 
   await delay(MOCK_DELAY_MS)
+
+  if (tool === 'adpanel_get_session_status') {
+    const statuses = ['processing', 'completed'] as const
+    const selectedStatus = statuses[Math.floor(Math.random() * statuses.length)]
+    const progress = selectedStatus === 'completed' ? 100 : 75
+
+    return {
+      mode: 'mock',
+      sessionHash,
+      tool,
+      status: selectedStatus,
+      message: `Mock execution finished. Set ADPANEL_API_KEY to route this tool to the AdPanel production gateway. Current simulated status: ${selectedStatus}.`,
+      progress,
+      ...(selectedStatus === 'completed' && {
+        resultUrl: 'https://assets.adpanel.io/mock_output_1080p.mp4',
+      }),
+    }
+  }
 
   return {
     mode: 'mock',

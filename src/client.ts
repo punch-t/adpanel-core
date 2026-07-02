@@ -11,6 +11,7 @@ export type GatewayToolName =
   | 'adpanel_ingest_brand_matrix'
   | 'adpanel_orchestrate_cinematic_timeline'
   | 'adpanel_synthesize_broadcast_asset'
+  | 'adpanel_get_session_status'
 
 export type GatewayRequestEnvelope<T extends Record<string, unknown> = Record<string, unknown>> =
   {
