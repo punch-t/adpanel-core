@@ -7,7 +7,7 @@ import { randomUUID } from 'node:crypto'
 
 import type { GatewayToolName } from './client.js'
 
-const MOCK_DELAY_MS = 1500
+const MOCK_DELAY_MS = Number(process.env.ADPANEL_MOCK_DELAY_MS ?? 1500)
 
 export type MockExecutionResult = {
   mode: 'mock'

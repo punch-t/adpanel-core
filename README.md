@@ -26,6 +26,13 @@ Copy `.env.example` to `.env` and set your API key (create one at [adpanel.io/mc
 ADPANEL_API_KEY=adp_your_key_here
 ```
 
+### Tuning
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ADPANEL_TIMEOUT_MS` | `30000` | Gateway request timeout in milliseconds. If the gateway doesn't respond in time, the tool call fails with a clear timeout error rather than hanging indefinitely. |
+| `ADPANEL_MOCK_DELAY_MS` | `1500` | Artificial delay in mock mode. Set to `0` for instant responses during rapid iteration. |
+
 ### Mock mode (no API key)
 
 If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orchestration trace is written to **stderr**, and a mock session hash is returned. Stdout stays clean for JSON-RPC.
