@@ -78,7 +78,7 @@ export async function postToolRequest<T extends Record<string, unknown>>(
     message?: string
   }
 
-  if (!response.ok) {
+  if (!response.ok || payload.ok === false) {
     throw new Error(
       payload.message || payload.error || `Gateway request failed (${response.status})`
     )
