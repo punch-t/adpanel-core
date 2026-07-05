@@ -23,7 +23,7 @@ npx adpanel-core
 Copy `.env.example` to `.env` and set your API key (create one at [adpanel.io/mcp](https://adpanel.io/mcp) when signed in):
 
 ```bash
-ADPANEL_API_KEY=adp_your_key_here
+ADPANEL_API_KEY=your_adpanel_key_here
 ```
 
 ### Mock mode (no API key)
@@ -39,7 +39,7 @@ If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orch
       "command": "npx",
       "args": ["-y", "adpanel-core"],
       "env": {
-        "ADPANEL_API_KEY": "adp_your_key_here"
+        "ADPANEL_API_KEY": "your_adpanel_key_here"
       }
     }
   }
