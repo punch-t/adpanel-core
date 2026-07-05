@@ -15,6 +15,9 @@ export type MockExecutionResult = {
   tool: GatewayToolName
   status: 'simulated_complete'
   message: string
+  routingRef?: string
+  sessionId?: string
+  timelineRef?: string
 }
 
 function writeStatus(lines: string[]): void {
@@ -56,7 +59,7 @@ function delay(ms: number): Promise<void> {
 
 export async function executeMockTool<T extends Record<string, unknown>>(
   tool: GatewayToolName,
-  _args: T
+  args: T
 ): Promise<MockExecutionResult> {
   const sessionHash = `mock_${randomUUID().replace(/-/g, '')}`
 
@@ -69,12 +72,25 @@ export async function executeMockTool<T extends Record<string, unknown>>(
 
   await delay(MOCK_DELAY_MS)
 
-  return {
+  const base: MockExecutionResult = {
     mode: 'mock',
     sessionHash,
     tool,
     status: 'simulated_complete',
     message:
       'Mock execution finished. Set ADPANEL_API_KEY to route this tool to the AdPanel production gateway.',
+  }
+
+  switch (tool) {
+    case 'adpanel_ingest_brand_matrix':
+      return { ...base, routingRef: `mock_routing_${randomUUID().replace(/-/g, '')}` }
+    case 'adpanel_orchestrate_cinematic_timeline':
+      return {
+        ...base,
+        sessionId: (args.sessionId as string | undefined) ?? randomUUID(),
+        timelineRef: `mock_timeline_${randomUUID().replace(/-/g, '')}`,
+      }
+    default:
+      return base
   }
 }
