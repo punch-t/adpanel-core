@@ -26,6 +26,8 @@ Copy `.env.example` to `.env` and set your API key (create one at [adpanel.io/mc
 ADPANEL_API_KEY=adp_your_key_here
 ```
 
+The `.env` file is loaded automatically at startup. Variables already present in the environment (e.g. the `env` block in your Claude Desktop config) always take precedence over the file.
+
 ### Mock mode (no API key)
 
 If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orchestration trace is written to **stderr**, and a mock session hash is returned. Stdout stays clean for JSON-RPC.
