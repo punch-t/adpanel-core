@@ -26,9 +26,19 @@ Copy `.env.example` to `.env` and set your API key (create one at [adpanel.io/mc
 ADPANEL_API_KEY=adp_your_key_here
 ```
 
+The `.env` file is loaded automatically at startup. Variables already present in the environment (e.g. the `env` block in your Claude Desktop config) always take precedence over the file.
+
 ### Mock mode (no API key)
 
 If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orchestration trace is written to **stderr**, and a mock session hash is returned. Stdout stays clean for JSON-RPC.
+
+### Request timeout
+
+Gateway requests abort after **30s** by default so a hung upstream can't stall a tool call indefinitely. Override with `ADPANEL_TIMEOUT_MS` (milliseconds):
+
+```bash
+ADPANEL_TIMEOUT_MS=10000
+```
 
 ## Claude Desktop
 
@@ -53,6 +63,12 @@ git clone https://github.com/punch-t/adpanel-core.git
 cd adpanel-core
 npm install
 npm run dev
+```
+
+Run the test suite:
+
+```bash
+npm test
 ```
 
 ## Architecture

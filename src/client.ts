@@ -7,6 +7,8 @@
 const GATEWAY_ORIGIN = 'https://adpanel.io'
 const GATEWAY_PATH = '/api/core/v1/gateway'
 
+const DEFAULT_TIMEOUT_MS = 30_000
+
 export type GatewayToolName =
   | 'adpanel_ingest_brand_matrix'
   | 'adpanel_orchestrate_cinematic_timeline'
@@ -37,6 +39,18 @@ export function hasValidatedApiKey(): boolean {
   return true
 }
 
+/**
+ * Resolve the gateway request timeout (ms) from ADPANEL_TIMEOUT_MS.
+ * Falls back to the default when unset, non-numeric, or non-positive.
+ */
+export function resolveTimeoutMs(): number {
+  const raw = process.env.ADPANEL_TIMEOUT_MS?.trim()
+  if (!raw) return DEFAULT_TIMEOUT_MS
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_TIMEOUT_MS
+  return parsed
+}
+
 export function resolveApiKey(): string {
   const apiKey = process.env.ADPANEL_API_KEY?.trim()
   if (!apiKey || PLACEHOLDER_KEYS.has(apiKey)) {
@@ -63,15 +77,31 @@ export async function postToolRequest<T extends Record<string, unknown>>(
     },
   }
 
-  const response = await fetch(`${GATEWAY_ORIGIN}${GATEWAY_PATH}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(envelope),
-  })
+  const timeoutMs = resolveTimeoutMs()
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+  let response: Response
+  try {
+    response = await fetch(`${GATEWAY_ORIGIN}${GATEWAY_PATH}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(envelope),
+      signal: controller.signal,
+    })
+  } catch (error: unknown) {
+    if (controller.signal.aborted) {
+      throw new Error(`Gateway request timed out after ${timeoutMs}ms`)
+    }
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`Gateway request failed: ${message}`)
+  } finally {
+    clearTimeout(timer)
+  }
 
   const payload = (await response.json().catch(() => ({}))) as GatewayResponseEnvelope & {
     error?: string

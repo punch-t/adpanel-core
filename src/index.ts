@@ -13,7 +13,12 @@ import {
   postToolRequest,
   type GatewayToolName,
 } from './client.js'
+import { loadEnvFile } from './env.js'
 import { executeMockTool } from './mock.js'
+
+// Load .env (if present) before anything reads process.env.
+// Real environment variables always take precedence over the file.
+loadEnvFile()
 
 const SERVER_VERSION = '0.1.0'
 
