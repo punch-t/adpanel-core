@@ -30,6 +30,14 @@ ADPANEL_API_KEY=adp_your_key_here
 
 If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orchestration trace is written to **stderr**, and a mock session hash is returned. Stdout stays clean for JSON-RPC.
 
+### Request timeout
+
+Gateway requests abort after **30s** by default so a hung upstream can't stall a tool call indefinitely. Override with `ADPANEL_TIMEOUT_MS` (milliseconds):
+
+```bash
+ADPANEL_TIMEOUT_MS=10000
+```
+
 ## Claude Desktop
 
 ```json
@@ -53,6 +61,12 @@ git clone https://github.com/punch-t/adpanel-core.git
 cd adpanel-core
 npm install
 npm run dev
+```
+
+Run the test suite:
+
+```bash
+npm test
 ```
 
 ## Architecture
