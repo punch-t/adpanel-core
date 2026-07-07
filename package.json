@@ -1,7 +1,7 @@
 {
   "name": "adpanel-core",
   "version": "0.1.0",
-  "description": "Open-source MCP stdio client for AdPanel — routes tool calls to the AdPanel production gateway.",
+  "description": "Open-source MCP stdio server for AdPanel — routes tool calls to the AdPanel production gateway.",
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
