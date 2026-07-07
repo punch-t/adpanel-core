@@ -6,6 +6,7 @@
 
 const GATEWAY_ORIGIN = 'https://adpanel.io'
 const GATEWAY_PATH = '/api/core/v1/gateway'
+const GATEWAY_TIMEOUT_MS = 30_000
 
 export type GatewayToolName =
   | 'adpanel_ingest_brand_matrix'
@@ -63,15 +64,24 @@ export async function postToolRequest<T extends Record<string, unknown>>(
     },
   }
 
-  const response = await fetch(`${GATEWAY_ORIGIN}${GATEWAY_PATH}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(envelope),
-  })
+  let response: Response
+  try {
+    response = await fetch(`${GATEWAY_ORIGIN}${GATEWAY_PATH}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(envelope),
+      signal: AbortSignal.timeout(GATEWAY_TIMEOUT_MS),
+    })
+  } catch (error) {
+    if (error instanceof Error && error.name === 'TimeoutError') {
+      throw new Error(`Gateway request to ${GATEWAY_PATH} timed out after ${GATEWAY_TIMEOUT_MS}ms`)
+    }
+    throw error
+  }
 
   const payload = (await response.json().catch(() => ({}))) as GatewayResponseEnvelope & {
     error?: string
