@@ -43,17 +43,30 @@ export type GatewayResponseEnvelope = {
   [key: string]: unknown
 }
 
-const PLACEHOLDER_KEYS = new Set(['', 'your_adpanel_key_here'])
+const PLACEHOLDER_KEYS = new Set([
+  '',
+  'your_adpanel_key_here',
+  'adp_your_key_here',
+])
+
+/**
+ * Return the configured API key if it is set to a real (non-placeholder)
+ * value, otherwise `null`. Centralizes the check shared by
+ * `hasValidatedApiKey` and `resolveApiKey`.
+ */
+function readApiKey(): string | null {
+  const raw = process.env.ADPANEL_API_KEY?.trim()
+  if (!raw || PLACEHOLDER_KEYS.has(raw)) return null
+  return raw
+}
 
 export function hasValidatedApiKey(): boolean {
-  const raw = process.env.ADPANEL_API_KEY?.trim()
-  if (!raw || PLACEHOLDER_KEYS.has(raw)) return false
-  return true
+  return readApiKey() !== null
 }
 
 export function resolveApiKey(): string {
-  const apiKey = process.env.ADPANEL_API_KEY?.trim()
-  if (!apiKey || PLACEHOLDER_KEYS.has(apiKey)) {
+  const apiKey = readApiKey()
+  if (!apiKey) {
     throw new Error(
       'ADPANEL_API_KEY is not configured. Set it in your environment or use mock mode (omit the key).'
     )
