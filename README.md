@@ -55,6 +55,15 @@ npm install
 npm run dev
 ```
 
+Run the same validation checks locally before opening a PR:
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build
+```
+
 ## Architecture
 
 ```
