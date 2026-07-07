@@ -26,6 +26,8 @@ Copy `.env.example` to `.env` and set your API key (create one at [adpanel.io/mc
 ADPANEL_API_KEY=adp_your_key_here
 ```
 
+On startup the server automatically loads a `.env` file from the working directory. Variables already present in the environment (for example, the `env` block of a Claude Desktop entry) always take precedence and are never overwritten.
+
 ### Optional settings
 
 | Variable | Default | Description |
