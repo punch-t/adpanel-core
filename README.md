@@ -63,6 +63,12 @@ npm install
 npm run dev
 ```
 
+Run the test suite (Node's built-in test runner, no extra dependencies):
+
+```bash
+npm test
+```
+
 ## Architecture
 
 ```
