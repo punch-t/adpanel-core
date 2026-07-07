@@ -55,6 +55,8 @@ npm install
 npm run dev
 ```
 
+Run the unit tests with `npm test`.
+
 ## Architecture
 
 ```
