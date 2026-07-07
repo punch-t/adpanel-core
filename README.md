@@ -26,6 +26,14 @@ Copy `.env.example` to `.env` and set your API key (create one at [adpanel.io/mc
 ADPANEL_API_KEY=adp_your_key_here
 ```
 
+On startup the server automatically loads a `.env` file from the working directory. Variables already present in the environment (for example, the `env` block of a Claude Desktop entry) always take precedence and are never overwritten.
+
+### Optional settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ADPANEL_TIMEOUT_MS` | `30000` | Abort a gateway request after this many milliseconds. Invalid or non-positive values fall back to the default. |
+
 ### Mock mode (no API key)
 
 If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orchestration trace is written to **stderr**, and a mock session hash is returned. Stdout stays clean for JSON-RPC.
@@ -53,6 +61,12 @@ git clone https://github.com/punch-t/adpanel-core.git
 cd adpanel-core
 npm install
 npm run dev
+```
+
+Run the test suite (Node's built-in test runner, no extra dependencies):
+
+```bash
+npm test
 ```
 
 ## Architecture

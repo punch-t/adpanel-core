@@ -7,6 +7,20 @@
 const GATEWAY_ORIGIN = 'https://adpanel.io'
 const GATEWAY_PATH = '/api/core/v1/gateway'
 
+const DEFAULT_TIMEOUT_MS = 30_000
+
+/**
+ * Resolve the gateway request timeout (ms) from ADPANEL_TIMEOUT_MS.
+ * Falls back to the default when unset, non-numeric, or non-positive.
+ */
+export function resolveTimeoutMs(): number {
+  const raw = process.env.ADPANEL_TIMEOUT_MS?.trim()
+  if (!raw) return DEFAULT_TIMEOUT_MS
+  const parsed = Number(raw)
+  if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_TIMEOUT_MS
+  return Math.floor(parsed)
+}
+
 export type GatewayToolName =
   | 'adpanel_ingest_brand_matrix'
   | 'adpanel_orchestrate_cinematic_timeline'
@@ -29,17 +43,30 @@ export type GatewayResponseEnvelope = {
   [key: string]: unknown
 }
 
-const PLACEHOLDER_KEYS = new Set(['', 'your_adpanel_key_here'])
+const PLACEHOLDER_KEYS = new Set([
+  '',
+  'your_adpanel_key_here',
+  'adp_your_key_here',
+])
+
+/**
+ * Return the configured API key if it is set to a real (non-placeholder)
+ * value, otherwise `null`. Centralizes the check shared by
+ * `hasValidatedApiKey` and `resolveApiKey`.
+ */
+function readApiKey(): string | null {
+  const raw = process.env.ADPANEL_API_KEY?.trim()
+  if (!raw || PLACEHOLDER_KEYS.has(raw)) return null
+  return raw
+}
 
 export function hasValidatedApiKey(): boolean {
-  const raw = process.env.ADPANEL_API_KEY?.trim()
-  if (!raw || PLACEHOLDER_KEYS.has(raw)) return false
-  return true
+  return readApiKey() !== null
 }
 
 export function resolveApiKey(): string {
-  const apiKey = process.env.ADPANEL_API_KEY?.trim()
-  if (!apiKey || PLACEHOLDER_KEYS.has(apiKey)) {
+  const apiKey = readApiKey()
+  if (!apiKey) {
     throw new Error(
       'ADPANEL_API_KEY is not configured. Set it in your environment or use mock mode (omit the key).'
     )
@@ -63,15 +90,32 @@ export async function postToolRequest<T extends Record<string, unknown>>(
     },
   }
 
-  const response = await fetch(`${GATEWAY_ORIGIN}${GATEWAY_PATH}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(envelope),
-  })
+  const timeoutMs = resolveTimeoutMs()
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+  let response: Response
+  try {
+    response = await fetch(`${GATEWAY_ORIGIN}${GATEWAY_PATH}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(envelope),
+      signal: controller.signal,
+    })
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(
+        `Gateway request timed out after ${timeoutMs}ms. Set ADPANEL_TIMEOUT_MS to adjust.`
+      )
+    }
+    throw error
+  } finally {
+    clearTimeout(timer)
+  }
 
   const payload = (await response.json().catch(() => ({}))) as GatewayResponseEnvelope & {
     error?: string

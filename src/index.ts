@@ -13,7 +13,11 @@ import {
   postToolRequest,
   type GatewayToolName,
 } from './client.js'
+import { loadEnvFile } from './env.js'
 import { executeMockTool } from './mock.js'
+
+// Load `.env` before any configuration is read (does not override existing env).
+loadEnvFile()
 
 const SERVER_VERSION = '0.1.0'
 

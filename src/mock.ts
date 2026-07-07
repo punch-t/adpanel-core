@@ -22,7 +22,7 @@ function writeStatus(lines: string[]): void {
   process.stderr.write(`${trace}\n`)
 }
 
-function mockStepsForTool(tool: GatewayToolName): string[] {
+export function mockStepsForTool(tool: GatewayToolName): string[] {
   switch (tool) {
     case 'adpanel_ingest_brand_matrix':
       return [
@@ -54,6 +54,21 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+/** Build a mock execution result envelope (pure — no I/O or delay). */
+export function buildMockResult(
+  tool: GatewayToolName,
+  sessionHash: string
+): MockExecutionResult {
+  return {
+    mode: 'mock',
+    sessionHash,
+    tool,
+    status: 'simulated_complete',
+    message:
+      'Mock execution finished. Set ADPANEL_API_KEY to route this tool to the AdPanel production gateway.',
+  }
+}
+
 export async function executeMockTool<T extends Record<string, unknown>>(
   tool: GatewayToolName,
   _args: T
@@ -69,12 +84,5 @@ export async function executeMockTool<T extends Record<string, unknown>>(
 
   await delay(MOCK_DELAY_MS)
 
-  return {
-    mode: 'mock',
-    sessionHash,
-    tool,
-    status: 'simulated_complete',
-    message:
-      'Mock execution finished. Set ADPANEL_API_KEY to route this tool to the AdPanel production gateway.',
-  }
+  return buildMockResult(tool, sessionHash)
 }
