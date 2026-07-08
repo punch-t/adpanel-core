@@ -4,11 +4,15 @@
  * Registers routing tools and delegates to the HTTP gateway or local mock router.
  */
 
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod'
 
 import {
+  getRuntimeStatus,
   hasValidatedApiKey,
   postToolRequest,
   type GatewayToolName,
@@ -16,6 +20,40 @@ import {
 import { executeMockTool } from './mock.js'
 
 const SERVER_VERSION = '0.1.0'
+
+function loadEnvFile(filePath: string): void {
+  let content: string
+
+  try {
+    content = readFileSync(filePath, 'utf8')
+  } catch {
+    return
+  }
+
+  for (const rawLine of content.split(/\r?\n/)) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('#')) continue
+
+    const exportPrefix = line.startsWith('export ') ? line.slice(7).trim() : line
+    const equalsIndex = exportPrefix.indexOf('=')
+    if (equalsIndex <= 0) continue
+
+    const key = exportPrefix.slice(0, equalsIndex).trim()
+    if (!key || process.env[key] !== undefined) continue
+
+    let value = exportPrefix.slice(equalsIndex + 1).trim()
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1)
+    }
+
+    process.env[key] = value
+  }
+}
+
+loadEnvFile(resolve(process.cwd(), '.env'))
 
 const ingestBrandMatrixSchema = {
   brandName: z
@@ -115,6 +153,13 @@ const synthesizeBroadcastAssetSchema = {
     .describe('Optional downstream publish target identifiers'),
 }
 
+const preflightSchema = {
+  probeNetwork: z
+    .boolean()
+    .default(true)
+    .describe('Probe the gateway origin with a lightweight HEAD request'),
+}
+
 async function routeTool<T extends Record<string, unknown>>(
   tool: GatewayToolName,
   args: T
@@ -162,6 +207,13 @@ server.tool(
   synthesizeBroadcastAssetSchema,
   async (args) =>
     jsonToolResult(await routeTool('adpanel_synthesize_broadcast_asset', args))
+)
+
+server.tool(
+  'adpanel_preflight',
+  'Check routing readiness and optional gateway reachability before making a real request.',
+  preflightSchema,
+  async (args) => jsonToolResult(await getRuntimeStatus(args.probeNetwork))
 )
 
 async function main(): Promise<void> {
