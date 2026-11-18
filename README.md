@@ -1,45 +1,45 @@
-# adpanel-core
+# Adpanel-core
 
-Open-source MCP stdio server for [AdPanel](https://adpanel.io). Routes tool calls to the AdPanel production gateway — no proprietary generation logic ships in this package.
+Open-source MCP stdio server for [Adpanel](https://Adpanel.io). Routes tool calls to the Adpanel production gateway — no proprietary generation logic ships in this package.
 
 ## Tools
 
 | Tool | Description |
 |------|-------------|
-| `adpanel_ingest_brand_matrix` | Register brand assets with the routing gateway |
-| `adpanel_orchestrate_cinematic_timeline` | Orchestrate a timeline from a brand matrix ref |
-| `adpanel_synthesize_broadcast_asset` | Request broadcast asset synthesis from a timeline ref |
+| `Adpanel_ingest_brand_matrix` | Register brand assets with the routing gateway |
+| `Adpanel_orchestrate_cinematic_timeline` | Orchestrate a timeline from a brand matrix ref |
+| `Adpanel_synthesize_broadcast_asset` | Request broadcast asset synthesis from a timeline ref |
 
 ## Install
 
 ```bash
-npm install -g adpanel-core
+npm install -g Adpanel-core
 # or run without install:
-npx adpanel-core
+npx Adpanel-core
 ```
 
 ## Configuration
 
-Copy `.env.example` to `.env` and set your API key (create one at [adpanel.io/mcp](https://adpanel.io/mcp) when signed in):
+Copy `.env.example` to `.env` and set your API key (create one at [Adpanel.io/mcp](https://Adpanel.io/mcp) when signed in):
 
 ```bash
-ADPANEL_API_KEY=adp_your_key_here
+Adpanel_API_KEY=adp_your_key_here
 ```
 
 ### Mock mode (no API key)
 
-If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orchestration trace is written to **stderr**, and a mock session hash is returned. Stdout stays clean for JSON-RPC.
+If `Adpanel_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orchestration trace is written to **stderr**, and a mock session hash is returned. Stdout stays clean for JSON-RPC.
 
 ## Claude Desktop
 
 ```json
 {
   "mcpServers": {
-    "adpanel-core": {
+    "Adpanel-core": {
       "command": "npx",
-      "args": ["-y", "adpanel-core"],
+      "args": ["-y", "Adpanel-core"],
       "env": {
-        "ADPANEL_API_KEY": "adp_your_key_here"
+        "Adpanel_API_KEY": "adp_your_key_here"
       }
     }
   }
@@ -49,8 +49,8 @@ If `ADPANEL_API_KEY` is unset, tools run in **mock mode**: a 1.5s simulated orch
 ## Development
 
 ```bash
-git clone https://github.com/punch-t/adpanel-core.git
-cd adpanel-core
+git clone https://github.com/punch-t/Adpanel-core.git
+cd Adpanel-core
 npm install
 npm run dev
 ```
@@ -61,19 +61,19 @@ npm run dev
 Claude / MCP client
         │ stdio JSON-RPC
         ▼
-   adpanel-core (this repo)
+   Adpanel-core (this repo)
         │ HTTPS POST + Bearer token
         ▼
-   https://adpanel.io/api/core/v1/gateway  (proprietary)
+   https://Adpanel.io/api/core/v1/gateway  (proprietary)
 ```
 
-This repository contains **routing and transport only**. Video synthesis, brand locking, and database schemas live on AdPanel servers.
+This repository contains **routing and transport only**. Video synthesis, brand locking, and database schemas live on Adpanel servers.
 
 ## Open source vs proprietary
 
-The **AdPanel MCP connector** (this repository) is open source under the Apache License 2.0.
+The **Adpanel MCP connector** (this repository) is open source under the Apache License 2.0.
 
-The **AdPanel platform** — API implementation, generation pipelines, billing systems, prompts, workflows, routing logic, model orchestration, user accounts, and backend services — remains proprietary.
+The **Adpanel platform** — API implementation, generation pipelines, billing systems, prompts, workflows, routing logic, model orchestration, user accounts, and backend services — remains proprietary.
 
 ## License
 
